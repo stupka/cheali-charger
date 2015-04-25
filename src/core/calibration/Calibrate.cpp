@@ -346,7 +346,7 @@ void calibrateI(bool charging, uint8_t point, AnalogInputs::ValueType current)
             maxValue = SMPS_UPPERBOUND_VALUE;
             name1 = AnalogInputs::IsmpsSet;
             name2 = AnalogInputs::Ismps;
-            SMPS::powerOn();
+            SMPS::powerOn(false);
             hardware::setVoutCutoff(MAX_CHARGE_V);
 
         } else {

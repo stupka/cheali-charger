@@ -24,7 +24,7 @@
 
 void SimpleChargeStrategy::powerOn()
 {
-    SMPS::powerOn();
+    SMPS::powerOn(false);
     Strategy::setVI(ProgramData::VCharge, true);
     TheveninMethod::initialize(true);
     SMPS::trySetIout(Strategy::minI);

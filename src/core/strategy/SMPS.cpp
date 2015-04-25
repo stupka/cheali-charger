@@ -109,7 +109,9 @@ void SMPS::trySetIout(AnalogInputs::ValueType I)
     setValue(value);
 }
 
-void SMPS::powerOn()
+// Igor Stupka
+// PID_V_mode:  TRUE - Vout controlled PID, FALSE - Ismps controlled PID
+void SMPS::powerOn(bool PID_V_mode)
 {
     if(isPowerOn())
         return;
@@ -117,7 +119,7 @@ void SMPS::powerOn()
     value_ = 0;
     IoutSet_ = 0;
     setValue(0);
-    hardware::setChargerOutput(true);
+    hardware::setChargerOutput(true, PID_V_mode);
     state_ = CHARGING;
 }
 
@@ -131,6 +133,6 @@ void SMPS::powerOff(STATE reason)
     //reset rising value
     value_ = 0;
     IoutSet_ = 0;
-    hardware::setChargerOutput(false);
+    hardware::setChargerOutput(false, false);
     state_ = reason;
 }

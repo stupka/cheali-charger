@@ -39,7 +39,8 @@ namespace SMPS {
     uint16_t getValue();
     void setValue(uint16_t value);
 
-    void powerOn();
+    //void powerOn();
+    void powerOn(bool PID_V_mode);
     void powerOff(STATE reason = CHARGING_COMPLETE);
 
 };

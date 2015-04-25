@@ -18,9 +18,11 @@
 #include "ChealiCharger2.h"
 #include "MainMenu.h"
 #include "ProgramData.h"
+#include "PowerSupplyData.h"
 #include "AnalogInputs.h"
 #include "EditName.h"
 #include "ProgramMenus.h"
+#include "ProgramLPSU.h"
 #include "Options.h"
 #include "Utils.h"
 #include "Buzzer.h"
@@ -36,8 +38,10 @@
 #include "helper.h"
 
 const char string_options[] PROGMEM = "options";
+const char string_psu[] PROGMEM = "power supply";
+
 const char * const progmemMainMenu[] PROGMEM =
-{string_options, NULL };
+{string_options, string_psu, NULL };
 
 MainMenu mainMenu(progmemMainMenu, 1);
 
@@ -48,6 +52,9 @@ void loop()
         switch(index) {
         case 0:
             Options::run();
+            break;
+        case 1:
+            ProgramLPSU::run();
             break;
         default:
             ProgramMenus::selectProgram(index - 1);
@@ -77,7 +84,8 @@ void setup()
 
     Screen::runWelcomeScreen();
 
-    eeprom::check();
+// Igor Stupka
+//    eeprom::check();
 }
 
 

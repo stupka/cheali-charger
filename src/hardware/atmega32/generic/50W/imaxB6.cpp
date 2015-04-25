@@ -107,7 +107,7 @@ void hardware::setBatteryOutput(bool enable)
 {
     IO::digitalWrite(OUTPUT_DISABLE_PIN, !enable);
     if(!enable) {
-        setChargerOutput(false);
+        setChargerOutput(false, false);
         setDischargerOutput(false);
     }
 }

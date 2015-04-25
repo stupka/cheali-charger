@@ -37,7 +37,7 @@ namespace TheveninChargeStrategy {
 void TheveninChargeStrategy::powerOn()
 {
     Balancer::powerOn();
-    SMPS::powerOn();
+    SMPS::powerOn(false);
     TheveninMethod::initialize(true);
 }
 

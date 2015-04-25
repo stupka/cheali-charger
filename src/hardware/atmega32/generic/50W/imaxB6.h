@@ -42,7 +42,8 @@ namespace hardware {
     void delay(uint16_t t);
     void setBuzzer(uint8_t val);
     void setBatteryOutput(bool enable);
-    void setChargerOutput(bool enable);
+//    void setChargerOutput(bool enable);
+	void setChargerOutput(bool enable, bool PID_V_mode);
     void setDischargerOutput(bool enable);
     void setBalancerOutput(bool enable);
 

@@ -5,6 +5,8 @@ set(CORE_DIR ${CMAKE_SOURCE_DIR}/src/core/)
 set(CORE_SOURCE
         AnalogInputs.cpp  AnalogInputsPrivate.h  ChealiCharger2.cpp  eeprom.cpp  Program.cpp      ProgramData.h       ProgramDCcycle.h  Settings.cpp  Utils.cpp
         AnalogInputs.h    AnalogInputsTypes.h    ChealiCharger2.h    eeprom.h    ProgramData.cpp  ProgramDCcycle.cpp  Program.h         Settings.h    Utils.h
+        PowerSupplyData.cpp ProgramLPSU.cpp 
+        PowerSupplyData.h   ProgramLPSU.h
 )
 
 include_directories(${CORE_DIR})

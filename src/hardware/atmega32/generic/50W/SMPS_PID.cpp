@@ -11,6 +11,9 @@ namespace {
     volatile uint16_t i_PID_CutOffVoltage;
     volatile long i_PID_MV;
     volatile bool i_PID_enable;
+    // Igor Stupka
+	// TRUE - Vout controlled PID, FALSE - Ismps controlled PID
+    volatile bool i_PID_V_mode;
 }
 
 #define A 4
@@ -29,19 +32,28 @@ uint16_t hardware::getPIDValue()
 void SMPS_PID::update()
 {
     if(!i_PID_enable) return;
-    //if Vout is too high disable PID
-    if(AnalogInputs::getADCValue(AnalogInputs::Vout_plus_pin) >= i_PID_CutOffVoltage) {
-        hardware::setChargerOutput(false);
-        i_PID_enable = false;
-        return;
-    }
 
-    //TODO: rewrite PID
-    //this is the PID - actually it is an I (Integral part) - should be rewritten
-    uint16_t PV = AnalogInputs::getADCValue(AnalogInputs::Ismps);
-    long error = i_PID_setpoint;
-    error -= PV;
-    i_PID_MV += error*A;
+	uint16_t PV;
+	if(i_PID_V_mode) {
+		PV = AnalogInputs::getADCValue(AnalogInputs::Vout_plus_pin);
+	}
+	else {
+		//if Vout is too high disable PID
+		if(AnalogInputs::getADCValue(AnalogInputs::Vout_plus_pin) >= i_PID_CutOffVoltage) {
+			hardware::setChargerOutput(false, false);
+			i_PID_enable = false;
+			return;
+		}
+
+		//TODO: rewrite PID
+		//this is the PID - actually it is an I (Integral part) - should be rewritten
+		PV = AnalogInputs::getADCValue(AnalogInputs::Ismps);
+	}
+
+	long error = i_PID_setpoint;
+	error -= PV;
+	i_PID_MV += error*A;
+
 
     if(i_PID_MV<0) i_PID_MV = 0;
     if(i_PID_MV > MAX_PID_MV_PRECISION) {
@@ -50,6 +62,7 @@ void SMPS_PID::update()
     SMPS_PID::setPID_MV(i_PID_MV>>PID_MV_PRECISION);
 }
 
+/*
 void SMPS_PID::init(uint16_t Vin, uint16_t Vout)
 {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
@@ -62,6 +75,22 @@ void SMPS_PID::init(uint16_t Vin, uint16_t Vout)
         i_PID_MV <<= PID_MV_PRECISION;
         i_PID_enable = true;
     }
+}
+*/
+
+void SMPS_PID::init(bool PID_V_mode, uint16_t Vin, uint16_t Vout)
+{
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        i_PID_V_mode = PID_V_mode;		
+		i_PID_setpoint = 0;
+		if(Vout>Vin) {
+			i_PID_MV = TIMER1_PRECISION_PERIOD;
+			} else {
+			i_PID_MV = 0;
+		}
+		i_PID_MV <<= PID_MV_PRECISION;
+		i_PID_enable = true;
+	}
 }
 
 namespace {
@@ -115,7 +144,7 @@ void hardware::setChargerValue(uint16_t value)
     }
 }
 
-void hardware::setChargerOutput(bool enable)
+void hardware::setChargerOutput(bool enable, bool PID_V_mode)
 {
     if(enable) setDischargerOutput(false);
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
@@ -125,14 +154,16 @@ void hardware::setChargerOutput(bool enable)
     }
     IO::digitalWrite(SMPS_DISABLE_PIN, !enable);
     if(enable) {
-        SMPS_PID::init(AnalogInputs::getRealValue(AnalogInputs::Vin), AnalogInputs::getRealValue(AnalogInputs::Vout_plus_pin));
+        SMPS_PID::init(PID_V_mode, AnalogInputs::getRealValue(AnalogInputs::Vin), AnalogInputs::getRealValue(AnalogInputs::Vout_plus_pin));
     }
 }
 
 
+
+
 void hardware::setDischargerOutput(bool enable)
 {
-    if(enable) setChargerOutput(false);
+    if(enable) setChargerOutput(false, false);
     IO::digitalWrite(DISCHARGE_DISABLE_PIN, !enable);
 }
 
